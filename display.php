@@ -1,36 +1,51 @@
 <?php
-require_once 'config.php';
-requireLogin();
-
-$users = [];
-$result = $conn->query("SELECT id, matric, name, accessLevel FROM users ORDER BY id");
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $users[] = $row;
-    }
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
 }
+include 'config.php';
+
+$sql = "SELECT matric, name, accessLevel FROM users";
+$result = mysqli_query($conn, $sql);
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>User List</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h2>User List</h2>
-        <p>Welcome, <?php echo htmlspecialchars($_SESSION['name']); ?></p>
-        <a href="logout.php">Logout</a>
-        <table border="1">
-            <tr><th>Matric</th><th>Name</th><th>Access Level</th></tr>
-            <?php foreach($users as $user): ?>
-            <tr>
-                <td><?php echo htmlspecialchars($user['matric']); ?></td>
-                <td><?php echo htmlspecialchars($user['name']); ?></td>
-                <td><?php echo htmlspecialchars($user['accessLevel']); ?></td>
-            </tr>
-            <?php endforeach; ?>
+        <h2>User Records</h2>
+        <table border="1" cellpadding="8" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Matric</th>
+                    <th>Name</th>
+                    <th>Access Level</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['matric']); ?></td>
+                    <td><?php echo htmlspecialchars($row['name']); ?></td>
+                    <td><?php echo htmlspecialchars($row['accessLevel']); ?></td>
+                    <td>
+                        <a href="update.php?matric=<?php echo urlencode($row['matric']); ?>">Edit</a> |
+                        <a href="delete.php?matric=<?php echo urlencode($row['matric']); ?>" 
+                           onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            </tbody>
         </table>
+        <br>
+        <a href="logout.php">Logout</a>
     </div>
 </body>
 </html>

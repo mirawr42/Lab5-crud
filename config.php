@@ -1,10 +1,12 @@
 <?php
-session_start();
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$dbname = 'lab5_bit21503';   // <-- change to your actual database name
+$dbname = 'Lab5_bit21503';   // <-- change to your actual database name
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 
